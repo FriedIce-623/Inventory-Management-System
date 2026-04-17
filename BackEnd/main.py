@@ -1,10 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from database import engine, Base
-from routers import auth, inventory, sales, predictions
+from routers import auth, inventory, sales, prediction
+import os
+from dotenv import load_dotenv
 
-# Create all tables on startup
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+SECRET_KEY = os.getenv("SECRET_KEY")
 Base.metadata.create_all(bind=engine)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 app = FastAPI(
     title="Smart Inventory API",
@@ -14,7 +22,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Tighten this in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,8 +31,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(inventory.router)
 app.include_router(sales.router)
-app.include_router(predictions.router)
-
+app.include_router(prediction.router)
 
 @app.get("/health")
 def health_check():
