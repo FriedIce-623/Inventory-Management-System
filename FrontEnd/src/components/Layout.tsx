@@ -31,7 +31,7 @@ export default function Layout({ children, activeView, onViewChange }: LayoutPro
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-glass border-t border-surface-container-highest px-2 pt-3 pb-8 flex justify-around items-center z-50 rounded-t-[2rem] shadow-[0_-12px_32px_-4px_rgba(31,16,142,0.08)]">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-glass border-t border-surface-container-highest px-2 pt-3 pb-8 flex justify-around items-center z-50 rounded-t-4xl shadow-[0_-12px_32px_-4px_rgba(31,16,142,0.08)]">
         <NavItem 
           icon={<LayoutDashboard className="w-5 h-5" />} 
           label="Home" 
@@ -67,7 +67,7 @@ export default function Layout({ children, activeView, onViewChange }: LayoutPro
   );
 }
 
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
+function NavItem({ icon, label, active, onClick }: { icon: React.ReactElement<React.SVGProps<SVGSVGElement>>; label: string; active: boolean; onClick: () => void }) {
   return (
     <button 
       onClick={onClick}
@@ -77,7 +77,7 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, labe
       )}
     >
       <div className={cn("transition-transform duration-300", active && "scale-110")}>
-        {React.cloneElement(icon as React.ReactElement, { 
+        {React.cloneElement(icon, { 
           fill: active ? "currentColor" : "none",
           strokeWidth: active ? 2.5 : 2
         })}
