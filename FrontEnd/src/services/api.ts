@@ -131,6 +131,12 @@ export const authAPI = {
   logout: () => {
     localStorage.removeItem('auth_token');
   },
+
+  // Register
+  register: async (data: any) => {
+    const response = await apiRequest('/auth/register', 'POST', data);
+    return response;
+  },
 };
 
 export default {

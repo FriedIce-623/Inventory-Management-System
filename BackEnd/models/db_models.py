@@ -1,9 +1,9 @@
 import uuid
 from sqlalchemy import (
     Column, String, Integer, Numeric, Boolean, Text, Float,
-    ForeignKey, DateTime, Date, CheckConstraint, func
+    ForeignKey, DateTime, Date, CheckConstraint, func, JSON
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -244,7 +244,7 @@ class Payment(Base):
     upi_ref          = Column(String(100))
     card_last4       = Column(String(4))
     gateway          = Column(String(50))
-    gateway_response = Column(JSONB)
+    gateway_response = Column(JSON)
     paid_at          = Column(DateTime, server_default=func.now())
 
     __table_args__ = (
