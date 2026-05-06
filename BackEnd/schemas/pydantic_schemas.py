@@ -65,21 +65,25 @@ class ProductUpdate(BaseModel):
     sku_code:          Optional[str]   = None
 
 class ProductOut(BaseModel):
-    product_id:        UUID
-    shop_id:           UUID
-    product_name:      str
-    category:          Optional[str]   # category name resolved from relationship
-    unit:              str
-    current_stock:     float
-    reorder_threshold: float
-    cost_price:        Optional[float]
-    selling_price:     Optional[float]
-    sku_code:          Optional[str]
-    needs_restock:     bool = False
+    product_id:           UUID
+    shop_id:              UUID
+    product_name:         str
+    category:             Optional[str]   # category name resolved from relationship
+    unit:                 str
+    current_stock:        float
+    reorder_threshold:    float
+    ai_reorder_threshold: Optional[float] = None  # ML-computed predicted demand
+    ai_suggested_reorder: Optional[float] = None  # ML-computed reorder qty
+    cost_price:           Optional[float]
+    selling_price:        Optional[float]
+    sku_code:             Optional[str]
+    needs_restock:        bool = False
 
     @model_validator(mode="after")
     def compute_needs_restock(self):
-        self.needs_restock = self.current_stock < self.reorder_threshold
+        # Use AI threshold when available, fall back to manual
+        effective = self.ai_reorder_threshold if self.ai_reorder_threshold is not None else self.reorder_threshold
+        self.needs_restock = self.current_stock < effective
         return self
 
     class Config:

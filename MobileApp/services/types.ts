@@ -41,10 +41,17 @@ export interface ProductOut {
   unit: string;
   current_stock: number;
   reorder_threshold: number;
+  ai_reorder_threshold: number | null;   // ML-computed predicted demand
+  ai_suggested_reorder: number | null;   // ML-computed reorder qty
   cost_price: number | null;
   selling_price: number | null;
   sku_code: string | null;
   needs_restock: boolean;
+}
+
+/** Returns the effective threshold — AI when available, manual fallback */
+export function getEffectiveThreshold(product: ProductOut): number {
+  return product.ai_reorder_threshold ?? product.reorder_threshold;
 }
 
 export interface ProductCreate {
@@ -72,10 +79,11 @@ export interface ProductUpdate {
 export type StockStatus = 'CRITICAL' | 'WARNING' | 'HEALTHY';
 
 export function getStockStatus(product: ProductOut): StockStatus {
-  if (product.needs_restock || product.current_stock < product.reorder_threshold) {
+  const effective = getEffectiveThreshold(product);
+  if (product.current_stock < effective) {
     return 'CRITICAL';
   }
-  if (product.current_stock < product.reorder_threshold * 1.5) {
+  if (product.current_stock < effective * 1.5) {
     return 'WARNING';
   }
   return 'HEALTHY';

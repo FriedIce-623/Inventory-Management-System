@@ -199,6 +199,16 @@ def generate_forecast(
     predicted_demand = predicted_demand or 0.0
     suggested_reorder = max(predicted_demand - product.current_stock, 0.0)
 
+    # ── Write AI threshold back to the product ────────────────────────────
+    # This is the key link: forecasts feed back into inventory status
+    product.ai_reorder_threshold = round(predicted_demand, 2)
+    product.ai_suggested_reorder = round(suggested_reorder, 2)
+    try:
+        db.commit()
+        db.refresh(product)
+    except Exception:
+        db.rollback()  # don't let a write failure break the forecast response
+
     return {
         "product_id":        product.product_id,
         "product_name":      product.product_name,

@@ -23,16 +23,18 @@ def _get_or_create_category(db: Session, category_name: str) -> Category:
 def _to_product_out(product: Product) -> ProductOut:
     """Resolves category name from the relationship for the response."""
     return ProductOut(
-        product_id        = product.product_id,
-        shop_id           = product.shop_id,
-        product_name      = product.product_name,
-        category          = product.category.name if product.category else None,
-        unit              = product.unit,
-        current_stock     = product.current_stock,
-        reorder_threshold = product.reorder_threshold,
-        cost_price        = float(product.cost_price) if product.cost_price else None,
-        selling_price     = float(product.selling_price) if product.selling_price else None,
-        sku_code          = product.sku_code,
+        product_id           = product.product_id,
+        shop_id              = product.shop_id,
+        product_name         = product.product_name,
+        category             = product.category.name if product.category else None,
+        unit                 = product.unit,
+        current_stock        = product.current_stock,
+        reorder_threshold    = product.reorder_threshold,
+        ai_reorder_threshold = product.ai_reorder_threshold,
+        ai_suggested_reorder = product.ai_suggested_reorder,
+        cost_price           = float(product.cost_price) if product.cost_price else None,
+        selling_price        = float(product.selling_price) if product.selling_price else None,
+        sku_code             = product.sku_code,
     )
 
 
@@ -50,9 +52,14 @@ def low_stock_alerts(
     db: Session = Depends(get_db),
     shop: Shop = Depends(get_current_shop)
 ):
-    """Returns only products below their reorder threshold."""
+    """Returns products below their effective reorder threshold (AI if available, else manual)."""
     products = db.query(Product).filter(Product.shop_id == shop.shop_id).all()
-    return [_to_product_out(p) for p in products if p.current_stock < p.reorder_threshold]
+    alerts = []
+    for p in products:
+        effective = p.ai_reorder_threshold if p.ai_reorder_threshold is not None else p.reorder_threshold
+        if p.current_stock < effective:
+            alerts.append(_to_product_out(p))
+    return alerts
 
 
 @router.post("/", response_model=ProductOut, status_code=201)

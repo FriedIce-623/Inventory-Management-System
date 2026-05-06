@@ -15,7 +15,7 @@ import {
 // ─── Configuration ───────────────────────────────────────────────────────────
 // Change this to your PC's local IP when testing on a physical device
 // e.g., 'http://192.168.1.5:8000'
-const API_BASE_URL = 'http://192.168.137.1:8000'; // Android emulator localhost alias
+const API_BASE_URL = 'http://192.168.0.118:8000'; // Your PC's WiFi IP
 
 const TOKEN_KEY = 'auth_token';
 

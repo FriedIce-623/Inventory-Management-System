@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors, BorderRadius, FontSize, FontWeight, Spacing, Shadow } from '../constants/theme';
-import { ProductOut, getStockStatus } from '../services/types';
+import { ProductOut, getStockStatus, getEffectiveThreshold } from '../services/types';
 import StockBadge from './StockBadge';
 
 interface ProductListItemProps {
@@ -11,8 +11,11 @@ interface ProductListItemProps {
 
 export default function ProductListItem({ product, onPress }: ProductListItemProps) {
   const status = getStockStatus(product);
-  const stockPercent = product.reorder_threshold > 0
-    ? Math.min((product.current_stock / (product.reorder_threshold * 3)) * 100, 100)
+  const effective = getEffectiveThreshold(product);
+  const isAiDriven = product.ai_reorder_threshold != null;
+
+  const stockPercent = effective > 0
+    ? Math.min((product.current_stock / (effective * 1.5)) * 100, 100)
     : 100;
 
   const barColor = status === 'CRITICAL' ? Colors.critical
@@ -28,6 +31,11 @@ export default function ProductListItem({ product, onPress }: ProductListItemPro
       <View style={styles.left}>
         <View style={styles.nameRow}>
           <Text style={styles.name} numberOfLines={1}>{product.product_name}</Text>
+          {isAiDriven && (
+            <View style={styles.aiBadge}>
+              <Text style={styles.aiBadgeText}>🤖 AI</Text>
+            </View>
+          )}
           <StockBadge status={status} />
         </View>
 
@@ -45,9 +53,18 @@ export default function ProductListItem({ product, onPress }: ProductListItemPro
             <View style={[styles.stockFill, { width: `${stockPercent}%`, backgroundColor: barColor }]} />
           </View>
           <Text style={styles.stockText}>
-            {product.current_stock} / {Math.round(product.reorder_threshold * 3)} {product.unit}
+            {product.current_stock} / {Math.round(effective)} {product.unit}
           </Text>
         </View>
+
+        {/* AI reorder suggestion */}
+        {product.ai_suggested_reorder != null && product.ai_suggested_reorder > 0 && (
+          <View style={styles.reorderRow}>
+            <Text style={styles.reorderText}>
+              📦 Order {Math.round(product.ai_suggested_reorder)} more
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.right}>
@@ -89,6 +106,17 @@ const styles = StyleSheet.create({
     color: Colors.text,
     flex: 1,
   },
+  aiBadge: {
+    backgroundColor: Colors.infoBg,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  aiBadgeText: {
+    fontSize: 10,
+    color: Colors.info,
+    fontWeight: FontWeight.semibold,
+  },
   metaRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
@@ -128,6 +156,14 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     minWidth: 80,
     textAlign: 'right',
+  },
+  reorderRow: {
+    marginTop: Spacing.xs,
+  },
+  reorderText: {
+    fontSize: FontSize.xs,
+    color: Colors.warning,
+    fontWeight: FontWeight.medium,
   },
   price: {
     fontSize: FontSize.lg,

@@ -98,7 +98,7 @@ export default function InventoryScreen() {
               <View style={styles.mRow}>
                 {[
                   { l: 'Stock', k: 'current_stock' },
-                  { l: 'Threshold', k: 'reorder_threshold' },
+                  { l: 'Initial Threshold', k: 'reorder_threshold' },
                 ].map(({ l, k }) => (
                   <View key={k} style={{ flex: 1 }}>
                     <View style={styles.mGrp}>
@@ -109,6 +109,7 @@ export default function InventoryScreen() {
                   </View>
                 ))}
               </View>
+              <Text style={styles.mHint}>🤖 AI will auto-adjust the threshold once you have sales data</Text>
               <View style={styles.mRow}>
                 {[
                   { l: 'Cost Price ₹', k: 'cost_price' },
@@ -155,6 +156,7 @@ const styles = StyleSheet.create({
   mLbl: { fontSize: FontSize.xs, fontWeight: FontWeight.medium, color: Colors.textSecondary, marginBottom: Spacing.xs },
   mInp: { backgroundColor: Colors.bgInput, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: Colors.border, color: Colors.text, fontSize: FontSize.md, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md },
   mRow: { flexDirection: 'row', gap: Spacing.md },
+  mHint: { fontSize: FontSize.xs, color: Colors.info, marginBottom: Spacing.md, fontStyle: 'italic' },
   addBtn: { margin: Spacing.xxl, borderRadius: BorderRadius.md, overflow: 'hidden' },
   addBtnG: { paddingVertical: Spacing.lg, alignItems: 'center', borderRadius: BorderRadius.md },
   addBtnT: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.white },

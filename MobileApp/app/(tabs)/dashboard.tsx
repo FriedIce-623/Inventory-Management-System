@@ -164,8 +164,13 @@ export default function DashboardScreen() {
                     <View style={styles.alertInfo}>
                       <Text style={styles.alertName} numberOfLines={1}>{product.product_name}</Text>
                       <Text style={styles.alertStock}>
-                        Stock: {product.current_stock} / Threshold: {product.reorder_threshold} {product.unit}
+                        Stock: {product.current_stock} {product.unit}
                       </Text>
+                      {product.ai_suggested_reorder != null && product.ai_suggested_reorder > 0 && (
+                        <Text style={styles.alertReorder}>
+                          📦 Order {Math.round(product.ai_suggested_reorder)} more
+                        </Text>
+                      )}
                     </View>
                     <StockBadge status={getStockStatus(product)} />
                   </View>
@@ -221,6 +226,7 @@ const styles = StyleSheet.create({
   alertInfo: { flex: 1, marginRight: Spacing.md },
   alertName: { fontSize: FontSize.md, fontWeight: FontWeight.semibold, color: Colors.text },
   alertStock: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
+  alertReorder: { fontSize: FontSize.xs, color: Colors.warning, fontWeight: FontWeight.medium, marginTop: 2 },
   viewAll: {
     fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.medium,
     textAlign: 'center', marginTop: Spacing.md,
